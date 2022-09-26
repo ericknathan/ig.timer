@@ -1,6 +1,12 @@
+import { formatDistanceToNow } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
+
+import { useCycles } from '../../contexts/CyclesContext';
 import { HistoryContainer, HistoryList, Status } from './styles';
 
 export function History() {
+  const { cycleList } = useCycles();
+
   return (
     <HistoryContainer>
       <h1>Meu histórico</h1>
@@ -16,38 +22,29 @@ export function History() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Conserto de débitos técnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <Status status="pending">Em andamento</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Ajustar o meu Design System</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 1 mês</td>
-              <td>
-                <Status status="interrupted">Interrompido</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de débitos técnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 20 dias</td>
-              <td>
-                <Status status="pending">Em andamento</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Ajustar o meu Design System</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 3 dias</td>
-              <td>
-                <Status status="completed">Concluído</Status>
-              </td>
-            </tr>
+            {cycleList.map((cycle) => (
+              <tr key={cycle.id}>
+                <td>{cycle.task}</td>
+                <td>{cycle.minutesAmount} minutos</td>
+                <td>
+                  {formatDistanceToNow(new Date(cycle.startDate), {
+                    addSuffix: true,
+                    locale: ptBR,
+                  })}
+                </td>
+                <td>
+                  {cycle.finishedDate && (
+                    <Status status="completed">Concluído</Status>
+                  )}
+                  {cycle.interruptedDate && (
+                    <Status status="interrupted">Interrompido</Status>
+                  )}
+                  {!cycle.finishedDate && !cycle.interruptedDate && (
+                    <Status status="pending">Em andamento</Status>
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </HistoryList>
